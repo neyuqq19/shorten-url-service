@@ -29,7 +29,7 @@ export async function find(shortenUrl){
 
 export async function add(url){
     if(isHTTPUrl(url) === false){
-        return;
+        return false;
     }
 
     let shortUrl = shorten(url);
@@ -37,24 +37,27 @@ export async function add(url){
         shortUrl = shorten(url);
     }
 
+    updateNewID();
     
     await Url.create({id: newID, url: url, shortCode: shortUrl, accessCount: 0});
     console.log("Da them vao database");
+    return true;
 }
 
 export async function update(shortenUrl, newURL){
     if(isHTTPUrl(newURL) === false){
-        return;
+        return -1;
     }
 
     const data = await Url.find({shortCode : shortenUrl});
     data[0].accessCount++;
     if(!data){
         console.log("Không tồn tại");
-        return;
+        return 0;
     }
     await Url.updateOne({shortCode: shortenUrl}, {url: newURL, accessCount: data[0].accessCount, updatedAt: Date().toLocaleString});
     console.log("Đã update url");
+    return 1;
 }
 
 export async function get(shortenUrl){
@@ -67,9 +70,14 @@ export async function get(shortenUrl){
 export async function deleteUrl(shortenUrl){
     if(find(shortenUrl) === false){
         console.log("Không tồn tại");
-        return;
+        return false;
     }
 
     await Url.deleteOne({shortCode: shortenUrl});
+    return true;
+}
 
+async function updateNewID(){
+    const data = await Url.find().sort({id: -1});
+    newID = data[0].id++;
 }

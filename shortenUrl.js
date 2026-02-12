@@ -18,5 +18,9 @@ export function isHTTPUrl(url){
 }
 
 export function displayWithoutAccessCount(data){
-    
+    let object;
+    if(data){
+        object = {id: data.id, url: data.url, shortCode: data.shortCode, createdAt: data.createdAt, updatedAt: data.updatedAt};
+    }
+    return object;
 }
